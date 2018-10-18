@@ -1,0 +1,41 @@
+
+
+
+set event-options policy ospf-down events RPD_OSPF_NBRDOWN_TEST
+set event-options policy ospf-down within 120 trigger on
+set event-options policy ospf-down within 120 trigger 4
+set event-options policy ospf-down within 120 events RPD_OSPF_NBRDOWN_TEST
+set event-options policy ospf-down then execute-commands commands "show bfd session"
+set event-options policy ospf-down then execute-commands commands "show ospf neighbor"
+set event-options policy ospf-down then execute-commands output-filename ospf-neighbor-down
+set event-options policy ospf-down then execute-commands destination jaut_desktop
+set event-options policy ospf-down then execute-commands output-format text
+set event-options destinations jaut_desktop archive-sites "scp://ansible@192.168.99.112/var/home/ansible/" password "$9$y-SleWg4ZjkPdbYoaU.mz369uOIEclvW"
+
+
+policy ospf-down {
+    events RPD_OSPF_NBRDOWN_TEST;
+    within 120 {
+        trigger on 4;
+        events RPD_OSPF_NBRDOWN_TEST;
+    }
+    then {
+        execute-commands {
+            commands {
+                "show bfd session";
+                "show ospf neighbor";
+            }
+            output-filename ospf-neighbor-down;
+            destination jaut_desktop;
+            output-format text;
+        }
+    }
+}
+destinations {
+    jaut_desktop {
+        archive-sites {
+            "scp://ansible@192.168.99.112/var/home/ansible/" password "$9$y-SleWg4ZjkPdbYoaU.mz369uOIEclvW"; ## SECRET-DATA
+        }
+    }
+}
+
